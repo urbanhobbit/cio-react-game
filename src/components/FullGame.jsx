@@ -106,7 +106,8 @@ export default function FullGame() {
 
     const scopeMultiplier = SCOPE_MULTIPLIERS[scope];
     const durationMultiplier = DURATION_MULTIPLIERS[duration];
-    const safeguardQuality = (safeguards?.length || 0) * SAFEGUARD_QUALITY_PER_ITEM;
+    const safeguardQuality =
+      (safeguards?.length || 0) * SAFEGUARD_QUALITY_PER_ITEM;
 
     let securityChange =
       (THREAT_SEVERITY * action.security_effect) / 100 -
@@ -484,9 +485,37 @@ function StartScreen({
 }
 
 function TutorialScreen({ metrics, budget, hr, onNext }) {
+  const [demoMetrics, setDemoMetrics] = useState({
+    security: 50,
+    freedom: 50,
+    public_trust: 50,
+    resilience: 50,
+    fatigue: 10,
+  });
+
+  const applyDemo = (type) => {
+    setDemoMetrics((prev) => {
+      let next = { ...prev };
+      if (type === "security_first") {
+        next.security = clamp(prev.security + 20, 0, 100);
+        next.freedom = clamp(prev.freedom - 15, 0, 100);
+        next.public_trust = clamp(prev.public_trust - 5, 0, 100);
+        next.resilience = clamp(prev.resilience + 5, 0, 100);
+        next.fatigue = clamp(prev.fatigue + 10, 0, 100);
+      } else if (type === "freedom_first") {
+        next.security = clamp(prev.security + 5, 0, 100);
+        next.freedom = clamp(prev.freedom + 15, 0, 100);
+        next.public_trust = clamp(prev.public_trust + 10, 0, 100);
+        next.resilience = clamp(prev.resilience + 8, 0, 100);
+        next.fatigue = clamp(prev.fatigue + 3, 0, 100);
+      }
+      return next;
+    });
+  };
+
   return (
     <>
-      <h2 style={styles.phaseTitle}>Kısa Eğitim</h2>
+      <h2 style={styles.phaseTitle}>Kısa Eğitim (Deneme Tur)</h2>
       <p style={styles.storyText}>
         Oyunda her turda üç şeye bakacaksın: (1) Kriz kartının hikâyesi, (2)
         Danışmanların önerileri, (3) Aksiyon kartı + kapsam, süre ve
@@ -497,7 +526,7 @@ function TutorialScreen({ metrics, budget, hr, onNext }) {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+          gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))",
           gap: 10,
           marginTop: 8,
         }}
@@ -538,10 +567,77 @@ function TutorialScreen({ metrics, budget, hr, onNext }) {
         </div>
       </div>
 
+      <div
+        style={{
+          marginTop: 14,
+          padding: 10,
+          borderRadius: 10,
+          border: "1px solid #374151",
+          background: "#020617",
+          display: "grid",
+          gridTemplateColumns: "minmax(0,1.3fr) minmax(0,1.2fr)",
+          gap: 10,
+        }}
+      >
+        <div>
+          <div style={{ marginBottom: 6, fontSize: 14, fontWeight: 600 }}>
+            Kısa deneme: iki farklı kararın etkisini gör
+          </div>
+          <p style={{ ...styles.storyText, fontSize: 13 }}>
+            Aşağıdaki butonlardan birine basarak, güvenlik odaklı veya özgürlük
+            odaklı bir kararın göstergeleri nasıl değiştirdiğini deneyebilirsin.
+            Bu sadece eğitim amaçlı; gerçek oyundaki metriklerini etkilemez.
+          </p>
+          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+            <button
+              style={styles.primaryButton}
+              onClick={() => applyDemo("security_first")}
+            >
+              🛡️ Güvenlik odaklı dene
+            </button>
+            <button
+              style={{
+                ...styles.primaryButton,
+                background:
+                  "linear-gradient(to right, #22d3ee, #6366f1)",
+              }}
+              onClick={() => applyDemo("freedom_first")}
+            >
+              🗽 Özgürlük odaklı dene
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <div
+            style={{
+              marginBottom: 4,
+              fontSize: 13,
+              color: "#a5b4fc",
+            }}
+          >
+            Deneme göstergeleri
+          </div>
+          <TutorialMetricBar label="🛡️ Güvenlik" value={demoMetrics.security} />
+          <TutorialMetricBar label="🗽 Özgürlük" value={demoMetrics.freedom} />
+          <TutorialMetricBar
+            label="🤝 Kamu Güveni"
+            value={demoMetrics.public_trust}
+          />
+          <TutorialMetricBar
+            label="💪 Dayanıklılık"
+            value={demoMetrics.resilience}
+          />
+          <TutorialMetricBar
+            label="😩 Uyum Yorgunluğu"
+            value={demoMetrics.fatigue}
+          />
+        </div>
+      </div>
+
       <p style={{ ...styles.storyText, fontSize: 13, marginTop: 10 }}>
-        Birazdan gerçek bir krizle başlayacaksın. İlk krizde sadece arayüzü
-        tanımaya odaklan; farklı aksiyonların metrikleri nasıl oynattığını
-        gözlemle.
+        Hazırsan şimdi gerçek krizlere geçebilirsin. İlk krizde sadece arayüzü
+        tanımaya ve metriklerin nasıl oynadığını gözlemlemeye odaklan.
       </p>
 
       <div style={styles.actionsRow}>
@@ -701,8 +797,7 @@ function DecisionScreen({
           <h3 style={styles.sideTitle}>Aksiyon Kartları</h3>
           <div style={styles.actionsGrid}>
             {scenario.action_cards.map((card) => {
-              const canPlay =
-                budget >= card.cost && hr >= card.hr_cost;
+              const canPlay = budget >= card.cost && hr >= card.hr_cost;
               const selected = selectedId === card.id;
               return (
                 <button
@@ -1010,7 +1105,7 @@ function ReportScreen({ metricsBefore, metricsAfter, results, onNext }) {
   );
 }
 
-/* ---------------------- End Screen ---------------------- */
+/* ---------------------- End Screen + Grafik ---------------------- */
 
 function EndScreen({ metrics, budget, hr, history, onRestart }) {
   const security = metrics.security;
@@ -1037,6 +1132,22 @@ function EndScreen({ metrics, budget, hr, history, onRestart }) {
       "Kamu güveni ve dayanıklılığı artıran kararlar aldın; bu, uzun vadede demokratik istikrarı destekler.";
   }
 
+  const timelineData = useMemo(() => {
+    const data = history.map((m, idx) => ({
+      step: idx === 0 ? "Başlangıç" : `Kriz ${idx}`,
+      security: m.security,
+      freedom: m.freedom,
+      trust: m.public_trust,
+    }));
+    data.push({
+      step: "Son",
+      security: metrics.security,
+      freedom: metrics.freedom,
+      trust: metrics.public_trust,
+    });
+    return data;
+  }, [history, metrics.security, metrics.freedom, metrics.public_trust]);
+
   return (
     <div style={styles.endMain}>
       <h2 style={styles.phaseTitle}>Oyun Sonu</h2>
@@ -1055,18 +1166,72 @@ function EndScreen({ metrics, budget, hr, history, onRestart }) {
           🤝 Kamu Güveni: {trust.toFixed(1)}
         </div>
         <div style={styles.resultLine}>
-          💪 Dayanıklılık: {metrics.resilience.toFixed(1)}
-        </div>
+          💪 Dayanıklılık: {metrics.resilience.toFixed(1)}</div>
         <div style={styles.resultLine}>
-          😩 Uyum Yorgunluğu: {metrics.fatigue.toFixed(1)}
-        </div>
+          😩 Uyum Yorgunluğu: {metrics.fatigue.toFixed(1)}</div>
         <div style={styles.resultLine}>💰 Bütçe: {budget.toFixed(0)}</div>
         <div style={styles.resultLine}>👥 İnsan Kaynağı: {hr.toFixed(0)}</div>
       </div>
 
-      <p style={{ ...styles.storyText, fontSize: 13, marginTop: 10 }}>
-        Her kriz başındaki metrikler hafızada tutuldu; istersen bir sonraki
-        iterasyonda bunları grafikle görselleştirebiliriz.
+      <div
+        style={{
+          marginTop: 12,
+          padding: 10,
+          borderRadius: 10,
+          border: "1px solid #1f2937",
+          background: "#020617",
+        }}
+      >
+        <h3
+          style={{
+            margin: 0,
+            marginBottom: 6,
+            fontSize: 14,
+            color: "#a5b4fc",
+          }}
+        >
+          Zaman İçinde Güvenlik / Özgürlük / Güven
+        </h3>
+        <div style={{ width: "100%", height: 220 }}>
+          <ResponsiveContainer>
+            <LineChart data={timelineData}>
+              <XAxis dataKey="step" fontSize={11} />
+              <YAxis domain={[0, 100]} fontSize={11} />
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="security"
+                name="Güvenlik"
+                stroke="#22c55e"
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="freedom"
+                name="Özgürlük"
+                stroke="#f97316"
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="trust"
+                name="Kamu Güveni"
+                stroke="#38bdf8"
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <p style={{ ...styles.storyText, fontSize: 12, marginTop: 8 }}>
+        Çizgi, her krizin başında ve sonunda güvenlik, özgürlük ve kamu
+        güveninin nasıl değiştiğini gösterir. Farklı oyunlarda bu deseni
+        karşılaştırarak liderlik tarzını tartışabilirsiniz.
       </p>
 
       <div style={styles.actionsRow}>
@@ -1138,6 +1303,33 @@ function MetricsPanel({ metrics, budget, hr }) {
         kazanımlarını korumak için kamu güveni ve özgürlükleri de gözetmek
         gerekir.
       </p>
+    </div>
+  );
+}
+
+function TutorialMetricBar({ label, value }) {
+  const safe = typeof value === "number" ? clamp(value, 0, 100) : 0;
+  return (
+    <div style={{ marginBottom: 4 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: 12,
+          color: "#e5e7eb",
+        }}
+      >
+        <span>{label}</span>
+        <span>{safe.toFixed(1)}</span>
+      </div>
+      <div style={styles.metricBarTrack}>
+        <div
+          style={{
+            ...styles.metricBarFill,
+            width: `${safe}%`,
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -1334,4 +1526,3 @@ const styles = {
     gap: 6,
   },
 };
-
