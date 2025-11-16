@@ -1,0 +1,58 @@
+{
+  "earthquake": {
+    "title": "Deprem Krizi",
+    "icon": "🏚️",
+    "story": "Adayı sabah erken saatlerde şiddetli bir deprem vurdu. Bazı baz istasyonları çalışmıyor, sosyal medyada panik ve yağma söylentileri dolaşıyor. Görev: Halkı doğru bilgilendir, yanlış haberleri sınırlarken ifade özgürlüğüne dikkat et.",
+    "advisors": [
+      {
+        "name": "Güvenlik Uzmanı",
+        "text": "Sosyal medyayı yavaşlatalım, yanlış haberleri hızla kaldıralım. ✅ Kaos azalır, yardım koordinasyonu kolaylaşır. ❌ İnsanlar kendini gözetlenmiş hissedebilir."
+      },
+      {
+        "name": "Hukukçu",
+        "text": "Genel yasak yerine, resmi ve acil içeriklere öncelik verelim. ✅ Özgürlükler korunur, meşruiyet güçlenir. ❌ Etki biraz daha yavaş olur."
+      },
+      {
+        "name": "Siyasal Danışman",
+        "text": "Tek bir kriz bilgi ekranı kuralım, söylentileri resmi bilgilerle düzeltelim. ✅ Kamu güveni artar. ❌ Sürekli güncel tutmak emek ister."
+      }
+    ],
+    "actions": [
+      {
+        "id": "A",
+        "name": "Sosyal Medyayı Yavaşlat",
+        "tooltip": "Yanlış bilgi yayan hesapları kısıtla, sosyal medyayı geçici olarak yavaşlat.",
+        "cost_budget": 50,
+        "cost_hr": 20,
+        "delta_security": 25,
+        "delta_freedom": -20,
+        "delta_public_trust": -10,
+        "delta_resilience": 5
+      },
+      {
+        "id": "B",
+        "name": "Platformlarla İş Birliği",
+        "tooltip": "Platformlarla anlaş, yanlış bilgiyi işaretle ve resmi içerikleri öne çıkar.",
+        "cost_budget": 30,
+        "cost_hr": 15,
+        "delta_security": 18,
+        "delta_freedom": -10,
+        "delta_public_trust": 5,
+        "delta_resilience": 5
+      },
+      {
+        "id": "C",
+        "name": "Bilgilendirme Kampanyası",
+        "tooltip": "Medya okuryazarlığı ve deprem bilgilendirme içerikleri hazırla ve yay.",
+        "cost_budget": 20,
+        "cost_hr": 10,
+        "delta_security": 10,
+        "delta_freedom": -2,
+        "delta_public_trust": 10,
+        "delta_resilience": 12
+      }
+    ],
+    "immediate_text": "Seçtiğin politika devreye giriyor: {action}. İlk saatlerde kriz yönetimi net biçimde değişiyor.",
+    "delayed_text": "Günler sonra şehir toparlanıyor. Söylentiler azalıyor ama bazı vatandaşlar alınan önlemlerin adilliğini tartışıyor."
+  }
+}
